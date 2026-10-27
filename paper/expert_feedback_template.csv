@@ -1,0 +1,1 @@
+reviewer_role,years_experience,review_date,case_id,unit_id,end_cycle,predicted_rul,actual_rul,interpretability,faithfulness_perception,actionability,human_usefulness,trust,safety_concern,most_useful_explanation,unclear_explanation,counterfactual_helpful,caution_notes,dashboard_change

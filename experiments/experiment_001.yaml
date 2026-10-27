@@ -1,0 +1,13 @@
+experiment:
+  id: "experiment_001"
+  title: "FD001 dataset preparation baseline"
+  subset: "FD001"
+  dataset_config: "configs/dataset.yaml"
+  preprocessing_config: "configs/preprocessing.yaml"
+  window_lengths:
+    - 20
+    - 30
+    - 40
+    - 50
+  rul_cap: 125
+  notes: "Dataset-only baseline. No model training."

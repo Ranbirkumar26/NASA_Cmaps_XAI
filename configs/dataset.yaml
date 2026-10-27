@@ -1,0 +1,30 @@
+dataset:
+  name: "NASA C-MAPSS Jet Engine Simulated Data"
+  subset: "FD001"
+  dataset_version: "1.0"
+  source_url: "https://data.nasa.gov/docs/legacy/CMAPSSData.zip"
+  source_page: "https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data"
+  citation: "A. Saxena, K. Goebel, D. Simon, and N. Eklund, Damage Propagation Modeling for Aircraft Engine Run-to-Failure Simulation, PHM 2008."
+  license_note: "NASA Open Data metadata page should be checked before redistribution."
+
+paths:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  reports_dir: "reports"
+  results_dir: "results"
+
+splits:
+  validation_unit_fraction: 0.2
+  seed: 42
+
+targets:
+  rul_cap: 125
+  target_column: "rul_capped"
+
+windows:
+  default: 30
+  candidates:
+    - 20
+    - 30
+    - 40
+    - 50

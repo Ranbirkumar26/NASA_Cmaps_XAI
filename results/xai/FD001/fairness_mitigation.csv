@@ -1,0 +1,9 @@
+variant,risk_group,train_windows,rmse,mae
+ridge_balanced_sampling,high_risk,3000,16.257020950317383,13.703417778015137
+ridge_balanced_sampling,low_risk,3000,19.856212615966797,16.370464324951172
+ridge_balanced_sampling,medium_risk,3000,20.124393463134766,16.60662269592285
+ridge_balanced_sampling,overall,3000,19.795833587646484,16.324106216430664
+ridge_original_sampling,high_risk,3000,16.88248634338379,13.989130973815918
+ridge_original_sampling,low_risk,3000,16.290891647338867,13.08802604675293
+ridge_original_sampling,medium_risk,3000,23.002761840820312,19.534332275390625
+ridge_original_sampling,overall,3000,17.642183303833008,14.222522735595703

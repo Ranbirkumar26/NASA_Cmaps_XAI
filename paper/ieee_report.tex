@@ -1,0 +1,448 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{array}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{balance}
+\usepackage{booktabs}
+
+\newcommand{\projectfigure}[3]{%
+\IfFileExists{#1}{\includegraphics[width=\linewidth]{#1}}{%
+\fbox{\parbox{0.9\linewidth}{\centering #3\\\detokenize{#1}}}}%
+\caption{#2}%
+}
+
+\newcommand{\projectgraphic}[2]{%
+\IfFileExists{#1}{\includegraphics[width=#2]{#1}}{%
+\fbox{\parbox{0.85\linewidth}{\centering Missing figure\\\detokenize{#1}}}}%
+}
+
+\title{Explainable Predictive Maintenance for Aircraft Turbofan Engines Using NASA C-MAPSS}
+
+\author{
+\IEEEauthorblockN{Ranbir Kumar \quad Kumar Manthan}
+\IEEEauthorblockA{Department of Computer Science and Engineering\\
+Vellore Institute of Technology Chennai\\
+Chennai, India\\
+ranbir.kumar2023@vitstudent.ac.in, kumar.manthan2023@vitstudent.ac.in}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Remaining useful life (RUL) prediction is useful in aircraft maintenance only when predictions can be interpreted and audited. This paper presents an explainable predictive-maintenance framework for turbofan engine RUL estimation using NASA C-MAPSS. The contribution is a reproducible evaluation workflow that connects RUL accuracy with sensor attribution, temporal attribution, counterfactual evidence, explanation-quality metrics, runtime cost, uncertainty checks, and subgroup performance gaps. FD001 is used as the primary experimental subset because it has one operating condition and one fault mode. On all FD001 test windows, the Transformer sequence model gives the lowest RMSE of 15.59 cycles and MAE of 10.88 cycles, while Ridge has the lower asymmetric NASA score. Under the standard last-window-per-engine protocol with capped labels, the Transformer gives RMSE of 14.42 cycles, MAE of 10.58 cycles, and NASA score of 377.71. Occlusion, SHAP, and Integrated Gradients agree most strongly on sensors 14, 11, and 13, with partial agreement on sensors 8 and 4. Explanation evaluation shows high robustness to small sensor perturbations but only moderate stability across neighboring windows. Medium-risk cases remain the weakest subgroup, and ensemble intervals are not calibrated. These results support explanation-aware maintenance review while exposing limits that must be fixed before deployment.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Explainable AI, predictive maintenance, remaining useful life, C-MAPSS, SHAP, LIME, DiCE, Integrated Gradients, turbofan engines.
+\end{IEEEkeywords}
+
+\section{Introduction}
+Aircraft turbofan engines are monitored through repeated cycles of operating settings and sensor readings. In NASA C-MAPSS, each training engine reaches a simulated failure state, and the learning task is to estimate remaining useful life (RUL). A low RUL prediction can guide inspection priority, but a scalar value alone does not tell an engineer which sensors influenced the prediction, whether similar engine states produce similar explanations, or whether the explanation survives small sensor noise.
+
+This work treats RUL estimation as a decision-support problem rather than a regression-only benchmark. Predictive accuracy remains necessary, since an inaccurate model cannot be rescued by a convincing explanation. However, an apparently accurate model can still be difficult to trust if its explanations are unstable, if different explainers disagree strongly, or if errors concentrate in a specific RUL range. The paper therefore evaluates prediction quality and explanation quality together.
+
+The novelty is modest and practical: the work does not introduce a new prognostics model or a new XAI algorithm. Instead, it combines existing RUL models and XAI methods into one reproducible C-MAPSS workflow with quantitative trust checks. The contributions are:
+\begin{enumerate}
+\item A unit-aware C-MAPSS preprocessing pipeline with train-only normalization, RUL capping, fixed windows, validation checks, and reproducibility artifacts.
+\item A shared benchmark across Ridge, Random Forest, HistGradientBoosting, MLP, LSTM, GRU, and Transformer models on identical FD001 windows.
+\item A time-series explanation setup combining SHAP, LIME, DiCE, sensor occlusion, temporal occlusion, and Captum Integrated Gradients.
+\item Quantitative XAI evaluation using faithfulness, stability, consistency, robustness, sparsity, temporal localization, runtime, memory, and explanation-disagreement metrics.
+\item Maintenance-facing analysis through RUL risk groups, uncertainty-error correlation, counterfactual examples, and cached dashboard artifacts.
+\end{enumerate}
+
+The central research question is:
+\begin{quote}
+Can a combined RUL and XAI evaluation framework improve the auditability of turbofan predictive-maintenance predictions by connecting accuracy, sensor attribution, temporal attribution, counterfactual evidence, uncertainty, subgroup behavior, and explanation-quality metrics?
+\end{quote}
+
+The answer from FD001 is mixed but useful. The Transformer model gives the lowest RMSE and MAE, while Ridge gives a lower asymmetric NASA score. Several explainers agree on important degradation-related sensors. At the same time, LIME disagrees with other explainers, medium-risk windows remain difficult, and uncertainty intervals are not calibrated. These limits are reported as part of the trust analysis, not treated as implementation noise.
+
+\section{Related work and tool comparison}
+NASA C-MAPSS is a standard simulated run-to-failure benchmark for turbofan prognostics \cite{saxena2008damage,nasaCmapssOpenData}. Earlier prognostics studies used C-MAPSS to evaluate RUL estimation under asymmetric maintenance cost, where late predictions can be more harmful than early predictions. Deep convolutional and recurrent models later improved C-MAPSS RUL estimation by learning degradation patterns from multivariate sensor histories \cite{babu2016deep,li2018deepcnn,zheng2017lstm}. Transformer-based models were introduced for general sequence modeling \cite{vaswani2017attention} and later adapted to interpretable time-series forecasting and C-MAPSS RUL modeling \cite{lim2021temporal,kim2024transformer}, motivating their inclusion as sequence baselines.
+
+Model explanations add a second layer of evidence. LIME fits local surrogate models around individual predictions \cite{ribeiro2016lime}, while SHAP estimates additive feature attributions \cite{lundberg2017shap}. Integrated Gradients assigns neural-network output differences to input dimensions relative to a baseline \cite{sundararajan2017integrated}, and Captum provides a PyTorch implementation of such attribution methods \cite{kokhlikyan2020captum}. DiCE generates diverse counterfactuals that show how an input could change to reach another predicted outcome \cite{mothilal2020dice}. Explanation evaluation work argues that interpretability needs rigorous measurement, not only attractive plots \cite{doshi2017rigorous}. Recent XAI prognostics work makes the same point for RUL systems, where explanation soundness and domain plausibility both matter \cite{solismartin2023soundness,youness2023xai}. This paper follows that direction by reporting faithfulness, stability, robustness, disagreement, runtime, and subgroup behavior beside predictive error \cite{samek2017evaluating,yeh2019infidelity,alvarez2018robustness,guidotti2018survey}.
+
+\begin{table*}[!t]
+\caption{Related work and role in the proposed framework}
+\label{tab:related}
+\centering
+\scriptsize
+\begin{tabular}{p{0.18\linewidth}p{0.22\linewidth}p{0.20\linewidth}p{0.28\linewidth}}
+\toprule
+Study or tool & Main idea & Role in this work & Remaining gap addressed here \\
+\midrule
+Saxena et al. \cite{saxena2008damage} & C-MAPSS run-to-failure engine simulation & Dataset and prognostics setting & Adds reproducible preprocessing, model comparison, and XAI evaluation artifacts \\
+\addlinespace
+Babu et al. \cite{babu2016deep} & Deep CNN regression for RUL estimation & Motivation for deep RUL baselines & Adds explanation-quality and trust checks beyond prediction error \\
+\addlinespace
+Li et al. \cite{li2018deepcnn} & Deep CNN RUL estimation on C-MAPSS & Recent deep prognostics reference point & Keeps sequence explanations and standard last-window reporting visible \\
+\addlinespace
+Zheng et al. \cite{zheng2017lstm} & LSTM-based RUL estimation & Recurrent sequence baseline & Compared with GRU and Transformer under common windows \\
+\addlinespace
+Vaswani et al. \cite{vaswani2017attention}; Lim et al. \cite{lim2021temporal} & Attention and interpretable time-series forecasting & Transformer sequence baseline & Tested with sensor, temporal, and gradient explanations \\
+\addlinespace
+Kim et al. \cite{kim2024transformer} & Transformer RUL modeling with reweighting & Modern C-MAPSS sequence-model context & This work adds explainer comparison and trust diagnostics \\
+\addlinespace
+LIME and SHAP \cite{ribeiro2016lime,lundberg2017shap} & Local surrogate and additive attribution & Local and global sensor explanations & Agreement and disagreement are measured quantitatively \\
+\addlinespace
+Integrated Gradients and Captum \cite{sundararajan2017integrated,kokhlikyan2020captum} & Neural attribution from a baseline & Sensor and temporal attribution for sequence models & Compared against model-agnostic and occlusion explanations \\
+\addlinespace
+DiCE \cite{mothilal2020dice} & Diverse counterfactual explanations & Higher-RUL counterfactual examples & Used as inspection evidence rather than direct repair advice \\
+\addlinespace
+Samek, Yeh, and Alvarez-Melis \cite{samek2017evaluating,yeh2019infidelity,alvarez2018robustness} & Explanation evaluation and robustness & Faithfulness, sensitivity, and stability motivation & Metrics are reported beside predictive performance \\
+\addlinespace
+Solis-Martin et al. and Youness et al. \cite{solismartin2023soundness,youness2023xai} & XAI soundness and explainable RUL prediction & Prognostics-specific XAI comparison & Motivates modest claims and explicit limitations \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Table~\ref{tab:related} positions this work as an integration and evaluation study. It combines established RUL models and explainers, then tests whether their outputs are consistent, stable, and useful enough to support maintenance review.
+
+\section{Proposed architecture}
+Fig.~\ref{fig:architecture} summarizes the implemented workflow. Raw C-MAPSS text files are parsed using the 26-column NASA schema, checked for duplicated unit-cycle pairs and invalid values, converted to capped RUL labels, normalized using training data only, and cut into 30-cycle windows. Classical and sequence models are trained on the same windows. The lowest-RMSE FD001 model is then explained with sensor attribution, temporal attribution, and counterfactual methods. The output artifacts are reused for metric tables, plots, and dashboard views so that all reported results refer to the same cached experiment files.
+
+\begin{figure*}[!t]
+\centering
+\projectfigure{figures/proposed_architecture.png}{Proposed C-MAPSS XAI workflow. Validated engine data are transformed into model outputs, XAI evidence, evaluation metrics, and maintenance-review artifacts.}{Framework diagram}
+\label{fig:architecture}
+\end{figure*}
+
+\section{Dataset description}
+NASA C-MAPSS Jet Engine Simulated Data contains simulated degradation trajectories for turbofan engines. Each row contains a unit identifier, cycle number, three operating settings, and 21 sensor readings. The implementation records both the NASA Open Data page, \url{https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data}, and the legacy data archive, \url{https://data.nasa.gov/docs/legacy/CMAPSSData.zip}.
+
+For training trajectories, RUL is computed as the engine's maximum cycle minus the current cycle. For test trajectories, NASA supplies final RUL separately, so labels are computed by extending each partial trajectory with the provided final RUL. The same RUL cap of 125 cycles is applied to both train and test labels after label construction. The cap reduces the influence of early healthy cycles, where exact large RUL differences are less useful for maintenance triage. This also means capped test RMSE is slightly lower than scoring against uncapped final RUL. For the standard final-window FD001 protocol, the Transformer RMSE is 14.42 with capped labels and 15.31 with uncapped labels.
+
+FD001 is the primary experimental subset because it has 100 training engines, 100 test engines, one operating condition, and one high-pressure-compressor fault mode. FD002 and FD004 include six operating conditions, and FD003 and FD004 include two fault modes. These subsets are prepared by the same parser, but this paper reports tuned results only for FD001. FD002 to FD004 are left for matched-budget future experiments rather than reported as unequal smoke benchmarks.
+
+\begin{table}[!t]
+\caption{Processed C-MAPSS subset characteristics}
+\label{tab:subsets}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}crrrrcc@{}}
+\toprule
+Subset & Train u. & Test u. & Train rows & Test rows & Cond. & Faults \\
+\midrule
+FD001 & 100 & 100 & 20631 & 13096 & 1 & 1 \\
+FD002 & 260 & 259 & 53759 & 33991 & 6 & 1 \\
+FD003 & 100 & 100 & 24720 & 16596 & 1 & 2 \\
+FD004 & 249 & 248 & 61249 & 41214 & 6 & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Risk groups are defined using actual capped RUL: high risk is RUL \(\leq 30\) cycles, medium risk is \(31 \leq\) RUL \(\leq 80\) cycles, and low risk is RUL \(>80\) cycles. These groups are used only for subgroup performance analysis; the primary model remains a regression model.
+
+\begin{figure}[!t]
+\centering
+\projectfigure{figures/fd001_engine_profile.png}{FD001 engine profile showing selected normalized sensor trends and RUL for one engine. The plot motivates window-based modeling because degradation is gradual and noisy.}{FD001 engine profile}
+\label{fig:engine_profile}
+\end{figure}
+
+\section{Experimental setup}
+The FD001 experiment uses a unit-aware validation split with seed 42 and a validation-unit fraction of 0.20. Windows have length 30 cycles and receive the RUL label of the final cycle in the window. At most 3000 training windows are sampled for each model in the reported benchmark to keep the model comparison and XAI runs tractable. The experiments were run on an Apple M3 MacBook Air with 8 CPU cores and 16 GB memory.
+
+Classical baselines use flattened windows. Ridge uses \(\alpha=1.0\). Random Forest uses 70 trees, maximum depth 14, and minimum leaf size 3. HistGradientBoosting uses 180 iterations, learning rate 0.05, and 31 maximum leaf nodes. The MLP uses hidden layers \((64,32)\), ReLU activation, \(\alpha=0.001\), learning rate 0.001, maximum 60 iterations, and early stopping. LSTM, GRU, and Transformer models use Adam, MSE loss on standardized RUL targets, batch size 128, learning rate \(10^{-3}\), dropout 0.10, hidden size 48 in the main run, and 4 epochs. A small tuning grid also checks LSTM and GRU with hidden size 32 and Transformer with hidden size 48 for up to 6 epochs.
+
+SHAP uses a permutation explainer with an independent masker, 64 background windows, 4 explained windows, and at least 1500 evaluations per call. LIME uses 64 background windows, 8 explained windows, regression mode, no discretization of continuous variables, and all flattened time-feature inputs as local features before aggregation back to sensor level. Integrated Gradients uses Captum with the training-mean window as the baseline and 24 integration steps. DiCE is run on 2 local examples and treated as qualitative counterfactual evidence rather than direct maintenance instruction.
+
+\noindent\textbf{Metric definitions.}
+Let \(f(\mathbf{x})\) denote the trained RUL model, \(\mathbf{x}_i\) a 30-cycle input window, \(y_i\) the true RUL, \(\hat{y}_i=f(\mathbf{x}_i)\), and \(a(\mathbf{x}_i)\) an attribution vector. Let \(S_k\) be the top-\(k\) attributed sensors, \(\mathbf{x}^{\setminus S_k}_i\) the same window with those sensors replaced by a training baseline, \(\tilde{\mathbf{x}}_i\) a noisy perturbation, \(\mathbf{x}'_i\) a nearby window from the same engine trajectory, \(r^{(p)}\) and \(r^{(q)}\) sensor rankings from two explainers, \(T_{\mathrm{last}}\) the last 20 percent of timesteps, and \(u_i\) the width of an uncertainty interval.
+
+\begin{table*}[!t]
+\caption{Predictive, XAI, and trust metrics used in this paper}
+\label{tab:metric_definitions}
+\centering
+\scriptsize
+\begin{tabular}{p{0.18\linewidth}p{0.39\linewidth}p{0.32\linewidth}}
+\toprule
+Metric & Formula & Interpretation \\
+\midrule
+RMSE, MAE & \(\mathrm{RMSE}=\sqrt{\frac{1}{n}\sum_i(y_i-\hat{y}_i)^2}\), \(\mathrm{MAE}=\frac{1}{n}\sum_i|y_i-\hat{y}_i|\) & RUL error in cycles. Lower is better. \\
+\addlinespace
+R2 & \(R^2=1-\frac{\sum_i(y_i-\hat{y}_i)^2}{\sum_i(y_i-\bar{y})^2}\) & Explained variance. Higher is better. \\
+\addlinespace
+NASA score & \(\sum_i s_i\), with \(s_i=e^{-d_i/13}-1\) if \(d_i<0\), \(s_i=e^{d_i/10}-1\) otherwise, \(d_i=\hat{y}_i-y_i\) & Asymmetric prognostics penalty. Lower is better. \\
+\addlinespace
+Faithfulness & \(\frac{1}{n}\sum_i |f(\mathbf{x}_i)-f(\mathbf{x}^{\setminus S_k}_i)|\) & Prediction shift after removing top evidence \cite{samek2017evaluating,yeh2019infidelity}. A random-deletion control repeats the same calculation with random sensors. \\
+\addlinespace
+Stability & \(\frac{1}{n}\sum_i \cos(a(\mathbf{x}_i),a(\mathbf{x}'_i))\) & Similarity for neighboring windows \cite{alvarez2018robustness}. Higher is better. \\
+\addlinespace
+Consistency & \(\rho_s(r^{(p)},r^{(q)})\) & Spearman agreement between explainer rankings. Higher is better. \\
+\addlinespace
+Robustness & \(\frac{1}{n}\sum_i \cos(a(\mathbf{x}_i),a(\tilde{\mathbf{x}}_i))\) & Attribution similarity under small noise \cite{alvarez2018robustness,yeh2019infidelity}. Higher is better. \\
+\addlinespace
+Sparsity, localization & \(\frac{\sum_{j\in S_3}|a_j|}{\sum_j|a_j|}\), \(\frac{\sum_{t\in T_{\mathrm{last}}}|a_t|}{\sum_t|a_t|}\) & Attribution concentration across sensors and recent timesteps. \\
+\addlinespace
+Subgroup gap, confidence & \(\max_g \mathrm{MAE}_g-\min_g \mathrm{MAE}_g\), \(\rho_s(u_i,|y_i-\hat{y}_i|)\) & RUL risk-group error gap and uncertainty-error alignment. \\
+\addlinespace
+Interval coverage & \(\frac{1}{n}\sum_i \mathbf{1}\{y_i\in[\ell_i,h_i]\}\) & Share of true RUL labels falling inside nominal ensemble intervals. Higher is better only when interval width is also controlled. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Results}
+\subsection{Predictive performance}
+Table~\ref{tab:models} reports FD001 model performance. The all-window columns score every test window, while the standard-protocol columns score only the final available window for each of the 100 test engines. HGB denotes HistGradientBoosting and RF denotes Random Forest. The all-window NASA score is divided by \(10^3\); the final NASA score is the standard 100-engine sum. The Transformer has the lowest RMSE and MAE under both protocols. Ridge has the lowest all-window NASA score, so the Transformer is not best on every metric. HGB remains a competitive non-sequence baseline. The Transformer uncapped final-window RMSE is 15.31 and the uncapped final-window NASA score is 401.00, compared with the stronger published FD001 DCNN result of RMSE 12.61 and NASA score 273.7 reported by Li et al. \cite{li2018deepcnn}. This gap is expected because the present run uses a small training budget and is designed for XAI auditability rather than state-of-the-art RUL performance.
+
+\begin{table}[!t]
+\caption{FD001 predictive benchmark}
+\label{tab:models}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1.6pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Model & All RMSE & All MAE & Final RMSE & Uncap. RMSE & NASA all & NASA final \\
+\midrule
+Transformer & 15.59 & 10.88 & 14.42 & 15.31 & 64.14 & 377.71 \\
+HGB & 16.52 & 12.55 & 15.19 & 16.22 & 70.30 & 568.93 \\
+LSTM & 16.97 & 13.28 & 14.96 & 16.18 & 94.87 & 584.39 \\
+Ridge & 17.64 & 14.22 & 17.52 & 18.60 & 57.51 & 539.92 \\
+RF & 17.85 & 13.85 & 17.14 & 18.24 & 110.56 & 925.83 \\
+GRU & 18.18 & 13.96 & 16.40 & 17.50 & 137.12 & 887.37 \\
+MLP & 24.00 & 18.70 & 18.04 & 19.05 & 154.80 & 547.01 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\projectfigure{figures/fd001_sensor_correlation.png}{FD001 Spearman correlation matrix for selected dynamic sensors and RUL. Cell numbers are omitted so the direction and grouping of correlations remain legible in IEEE column format.}{FD001 sensor correlation heatmap}
+\label{fig:sensor_correlation}
+\end{figure}
+
+\subsection{Global, local, and temporal explanations}
+Sensor occlusion ranks sensors 11, 14, 4, 8, and 13 highest. Integrated Gradients ranks sensors 14, 4, 13, 11, and 9 highest. Package-backed SHAP ranks sensors 14, 8, 11, 13, and 9 highest. Only sensors 14, 11, and 13 appear in the top lists for all three of occlusion, SHAP, and Integrated Gradients. Sensors 8 and 4 appear strongly in two of the three lists. LIME gives a less consistent ranking and elevates several low-variance sensors, which is treated as explanation disagreement rather than ignored.
+
+\begin{figure*}[!t]
+\centering
+\projectgraphic{figures/xai_attribution_panels.png}{0.98\linewidth}
+\caption{Multi-panel attribution summary for FD001. Occlusion, SHAP, and Integrated Gradients are shown at sensor level, while temporal occlusion shows cycle-level importance across the 30-cycle window.}
+\label{fig:global_temporal}
+\end{figure*}
+
+\begin{table}[!t]
+\caption{Top sensor attributions from four explainers}
+\label{tab:attribution}
+\centering
+\scriptsize
+\begin{tabular}{llr}
+\toprule
+Method & Top sensors & Top score \\
+\midrule
+Occlusion & s11, s14, s4, s8, s13 & 3.29 \\
+Integrated Gradients & s14, s4, s13, s11, s9 & 5.64 \\
+SHAP & s14, s8, s11, s13, s9 & 9.01 \\
+LIME & s16, s10, s1, s19, s14 & 3.10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:attribution} should be read as a ranking comparison, not as a shared numerical scale. The methods produce attributions with different units, so the overlap among top sensors is more meaningful than direct score comparison. Agreement among occlusion, SHAP, and Integrated Gradients supports the sensor-evidence claim, while the LIME row motivates caution for local surrogate explanations.
+
+\begin{table}[!t]
+\caption{DiCE counterfactual examples}
+\label{tab:dice}
+\centering
+\scriptsize
+\begin{tabular}{rrrrp{0.23\linewidth}}
+\toprule
+Sample & Current & Counterfactual & Gain & Changed channels \\
+\midrule
+3281 & 9.65 & 19.84 & 10.19 & s21, s7, setting 2, s11, s1 \\
+5157 & 46.59 & 60.63 & 14.04 & s9, s17 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Counterfactual values in Table~\ref{tab:dice} are predicted RUL values in cycles. They are interpreted as nearby healthier patterns, not as direct actuator settings or repair instructions.
+
+\subsection{Explanation quality and runtime}
+Table~\ref{tab:quality} reports the quantitative XAI checks. Faithfulness is a prediction-change score in cycles; robustness, stability, and consistency are similarity or rank-agreement scores.
+
+\begin{table}[!t]
+\caption{FD001 XAI quality metrics}
+\label{tab:quality}
+\centering
+\scriptsize
+\begin{tabular}{llr}
+\toprule
+Dimension & Metric & Value \\
+\midrule
+Faithfulness & Top-3 deletion delta & 12.43 \\
+Faithfulness control & Random-3 deletion delta & 3.49 \(\pm\) 0.70 \\
+Stability & Neighbor cosine & 0.45 \\
+Consistency & Occlusion-LIME Spearman & 0.83 \\
+Robustness & Noise cosine & 0.995 \\
+Sparsity & Top-3 share & 0.44 \\
+Localization & Last-20-percent share & 0.51 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+\caption{Explainer runtime and memory}
+\label{tab:runtime}
+\centering
+\scriptsize
+\begin{tabular}{lrrr}
+\toprule
+Explainer & ms/sample & Peak MB & Samples \\
+\midrule
+Sensor occlusion & 1.45 & 0.14 & 24 \\
+Temporal occlusion & 1.71 & 0.14 & 24 \\
+LIME-style surrogate & 5.51 & 0.61 & 24 \\
+Integrated Gradients & 5.17 & 3.52 & 24 \\
+Package LIME & 243.02 & 197.42 & 8 \\
+Package SHAP & 4437.53 & 1574.99 & 4 \\
+DiCE random & 4825.84 & 39.93 & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:runtime} shows why expensive explainers are cached. Occlusion, temporal occlusion, and Integrated Gradients are fast enough for sampled review; package SHAP and DiCE are better used as offline artifacts.
+
+As a faithfulness control, deleting the top three attributed sensors shifts predictions by 12.43 cycles, compared with \(3.49 \pm 0.70\) cycles for random deletion of three sensors. The \(\pm\) value is the standard deviation over 50 random deletion draws on the same 24 explanation windows.
+
+\subsection{Subgroup behavior, uncertainty, and high-risk ranking}
+Table~\ref{tab:subgroup} shows that high-risk windows have the lowest error, while medium-risk windows produce the largest error. This matters because medium-risk cases are often where inspection timing is hardest.
+
+\begin{table}[!t]
+\caption{FD001 subgroup performance by RUL risk band}
+\label{tab:subgroup}
+\centering
+\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+Risk group & Count & RMSE & MAE & Mean RUL \\
+\midrule
+High (\(\leq 30\)) & 332 & 5.61 & 4.13 & 21.86 \\
+Medium (31-80) & 1748 & 23.65 & 18.61 & 58.22 \\
+Low (\(>80\)) & 8116 & 13.55 & 9.49 & 117.70 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+High-risk detection is evaluated as a ranking problem using negative predicted RUL as the risk score. Average precision is 0.873 and ROC-AUC is 0.995, so the model ranks near-failure windows well even though the main task is regression.
+
+\begin{figure*}[!t]
+\centering
+\projectgraphic{figures/high_risk_curves.png}{0.95\linewidth}
+\caption{High-risk ranking curves for FD001. High risk is defined as actual RUL \(\leq 30\) cycles.}
+\label{fig:high_risk_curves}
+\end{figure*}
+
+\begin{table}[!t]
+\caption{Additional trust and uncertainty checks}
+\label{tab:trust}
+\centering
+\scriptsize
+\begin{tabular}{lr}
+\toprule
+Check & Value \\
+\midrule
+Prediction interval coverage & 0.67 \\
+Uncertainty-error Spearman & 0.15 \\
+Subgroup MAE gap (cycles) & 14.47 \\
+Mean drift distance & 0.21 \\
+Top-sensor perturbation shift (cycles) & 2.14 \\
+Low-variance attribution share & 0.00 \\
+Explanation disagreement & 0.46 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:trust} replaces mixed-unit bar plots with scalar checks. Prediction intervals are built as the mean prediction across the seven benchmark models plus or minus \(1.96\) empirical standard deviations across model predictions, giving a nominal 95 percent ensemble interval. Interval coverage is the share of targets inside that interval. Mean drift distance is the average Wasserstein distance between original and perturbed sensor distributions. Top-sensor perturbation shift is the mean prediction change after perturbing the highest-ranked sensors. Low-variance attribution share is the fraction of attribution assigned to near-constant sensors. Explanation disagreement is \(1\) minus the top-5 Jaccard overlap across explainer rankings. The weak uncertainty-error correlation and 0.67 interval coverage mean the intervals should be treated as uncertainty indicators, not calibrated confidence bounds.
+
+\section{Discussion and limitations}
+The strongest finding is that occlusion, SHAP, and Integrated Gradients repeatedly identify a similar set of sensors. This agreement makes the explanation more credible than any single explainer alone. Temporal attribution also places more weight on recent cycles, which is consistent with the RUL task.
+
+The main limitation is the medium-risk band. High-risk windows contain visible degradation, and low-risk windows are made similar by the RUL cap. Medium-risk windows sit between these states, so the model has less decisive evidence. This is where subgroup MAE is highest, and it is the most important target for future improvement.
+
+LIME disagreement is another limitation. LIME raises several low-variance channels that other methods do not rank highly. One likely reason is that local perturbations over flattened time-series windows can produce samples that are close numerically but less plausible physically. LIME is therefore useful as a local check, but it should not be the only explanation used for maintenance advice.
+
+The experimental protocol also has limits. The main benchmark uses one random seed, a capped training budget of 3000 windows, and only four deep-learning epochs in the main sequence-model run. This is enough for a bounded research prototype, but not enough to claim statistical superiority of the 0.93-cycle all-window RMSE margin between Transformer and HistGradientBoosting. A publication-level study should report at least five seeds with mean and standard deviation, use a larger training budget, and tune sequence models more thoroughly. Explanation sample sizes are also small for expensive methods: SHAP uses 4 windows, LIME uses 8 windows, and DiCE uses 2 examples. Therefore, attribution rankings from these package-backed explainers are treated as preliminary evidence. The random-deletion control in Table~\ref{tab:quality} improves the faithfulness interpretation because top-attributed sensor deletion changes predictions more than random sensor deletion, but it is still computed on 24 sampled windows and should be rerun on a larger explanation set.
+
+The dashboard is an auxiliary artifact that displays cached model, XAI, and trust outputs. It can help organize a review, but this paper does not claim measured human decision improvement because no user study or expert evaluation has been completed. Expert feedback is future work and should involve at least two or three maintenance or reliability reviewers using anonymized high-risk, medium-risk, and low-risk cases.
+
+FD002 to FD004 are parsed and validated by the same software, but they are not reported here because they were not rerun with the same budget as FD001. Future work should run matched-budget experiments on all four subsets, calibrate conformal prediction intervals, tune the sequence models more thoroughly, and test subgroup-aware sampling or weighted losses for the medium-risk band.
+
+\section{Conclusion}
+This paper presented an explainable predictive-maintenance framework for C-MAPSS turbofan RUL estimation. On FD001, the Transformer sequence model achieved the lowest all-window RMSE of 15.59 cycles and MAE of 10.88 cycles, while Ridge achieved a lower asymmetric NASA score. Under the standard last-window-per-engine protocol, the Transformer reached capped RMSE of 14.42 cycles, uncapped RMSE of 15.31 cycles, and final NASA score of 377.71. SHAP, occlusion, and Integrated Gradients converged most clearly on sensors 14, 11, and 13, and temporal attribution emphasized recent cycles. Quantitative XAI evaluation showed strong robustness and useful faithfulness, but only moderate stability. The main remaining issues are medium-risk error, LIME disagreement, uncalibrated intervals, small explainer sample sizes, one-seed reporting, and the absence of completed expert feedback. The framework is therefore best viewed as an auditable research prototype that connects prediction, explanation, and trust diagnostics rather than as a deployment-ready maintenance system.
+
+\section*{Code and Data Availability}
+NASA C-MAPSS is publicly available, as described in Sec. IV; code, processed artifacts, and generated reports are included in the supplementary material because no public repository is currently available.
+
+\section*{Acknowledgment}
+The authors thank Dr. Poornima S for project guidance. OpenAI ChatGPT and OpenAI Codex were used for code scaffolding, LaTeX formatting, figure generation support, citation checking, and editorial revision of the abstract, introduction, related work, proposed architecture, experimental setup, results, discussion, conclusion, and references. The authors reviewed, edited, and take responsibility for the submitted content, experiments, tables, figures, references, and claims.
+
+\balance
+\begin{thebibliography}{20}
+\bibitem{saxena2008damage}
+A. Saxena, K. Goebel, D. Simon, and N. Eklund, ``Damage propagation modeling for aircraft engine run-to-failure simulation,'' in \emph{Proc. International Conference on Prognostics and Health Management}, Denver, CO, USA, 2008, pp. 1--9.
+
+\bibitem{nasaCmapssOpenData}
+NASA Open Data, ``C-MAPSS Jet Engine Simulated Data,'' \url{https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data}, accessed Oct. 20, 2026.
+
+\bibitem{babu2016deep}
+G. S. Babu, P. Zhao, and X. L. Li, ``Deep convolutional neural network based regression approach for estimation of remaining useful life,'' in \emph{Database Systems for Advanced Applications, Lecture Notes in Computer Science}, vol. 9642, 2016, pp. 214--228, doi: 10.1007/978-3-319-32025-0\_14.
+
+\bibitem{li2018deepcnn}
+X. Li, Q. Ding, and J.-Q. Sun, ``Remaining useful life estimation in prognostics using deep convolution neural networks,'' \emph{Reliability Engineering \& System Safety}, vol. 172, pp. 1--11, 2018, doi: 10.1016/j.ress.2017.11.021.
+
+\bibitem{zheng2017lstm}
+S. Zheng, K. Ristovski, A. Farahat, and C. Gupta, ``Long short-term memory network for remaining useful life estimation,'' in \emph{Proc. IEEE International Conference on Prognostics and Health Management}, Dallas, TX, USA, 2017, pp. 88--95, doi: 10.1109/ICPHM.2017.7998311.
+
+\bibitem{vaswani2017attention}
+A. Vaswani \emph{et al.}, ``Attention is all you need,'' in \emph{Advances in Neural Information Processing Systems}, vol. 30, 2017, pp. 5998--6008, arXiv:1706.03762.
+
+\bibitem{lim2021temporal}
+B. Lim, S. O. Arik, N. Loeff, and T. Pfister, ``Temporal Fusion Transformers for interpretable multi-horizon time series forecasting,'' \emph{International Journal of Forecasting}, vol. 37, no. 4, pp. 1748--1764, 2021, doi: 10.1016/j.ijforecast.2021.03.012.
+
+\bibitem{kim2024transformer}
+G. Kim, J. G. Choi, and S. Lim, ``Using transformer and a reweighting technique to develop a remaining useful life estimation method for turbofan engines,'' \emph{Engineering Applications of Artificial Intelligence}, vol. 133, Article 108475, 2024, doi: 10.1016/j.engappai.2024.108475.
+
+\bibitem{ribeiro2016lime}
+M. T. Ribeiro, S. Singh, and C. Guestrin, ``Why should I trust you? Explaining the predictions of any classifier,'' in \emph{Proc. 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, San Francisco, CA, USA, 2016, pp. 1135--1144, doi: 10.1145/2939672.2939778.
+
+\bibitem{lundberg2017shap}
+S. M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model predictions,'' in \emph{Advances in Neural Information Processing Systems}, vol. 30, 2017, pp. 4765--4774.
+
+\bibitem{sundararajan2017integrated}
+M. Sundararajan, A. Taly, and Q. Yan, ``Axiomatic attribution for deep networks,'' in \emph{Proc. 34th International Conference on Machine Learning}, PMLR, vol. 70, 2017, pp. 3319--3328, arXiv:1703.01365.
+
+\bibitem{mothilal2020dice}
+R. K. Mothilal, A. Sharma, and C. Tan, ``Explaining machine learning classifiers through diverse counterfactual explanations,'' in \emph{Proc. ACM Conference on Fairness, Accountability, and Transparency}, Barcelona, Spain, 2020, pp. 607--617, doi: 10.1145/3351095.3372850.
+
+\bibitem{doshi2017rigorous}
+F. Doshi-Velez and B. Kim, ``Towards a rigorous science of interpretable machine learning,'' arXiv:1702.08608, 2017.
+
+\bibitem{solismartin2023soundness}
+D. Solis-Martin, J. Galan-Paez, and J. Borrego-Diaz, ``On the soundness of XAI in prognostics and health management,'' \emph{Information}, vol. 14, no. 5, Article 256, 2023, doi: 10.3390/info14050256.
+
+\bibitem{youness2023xai}
+G. Youness and A. Aalah, ``An explainable artificial intelligence approach for remaining useful life prediction,'' \emph{Aerospace}, vol. 10, no. 5, Article 474, 2023, doi: 10.3390/aerospace10050474.
+
+\bibitem{samek2017evaluating}
+W. Samek, A. Binder, G. Montavon, S. Lapuschkin, and K.-R. Muller, ``Evaluating the visualization of what a deep neural network has learned,'' \emph{IEEE Transactions on Neural Networks and Learning Systems}, vol. 28, no. 11, pp. 2660--2673, 2017, doi: 10.1109/TNNLS.2016.2599820.
+
+\bibitem{yeh2019infidelity}
+C.-K. Yeh, C.-Y. Hsieh, A. Suggala, D. I. Inouye, and P. K. Ravikumar, ``On the (in)fidelity and sensitivity of explanations,'' in \emph{Advances in Neural Information Processing Systems}, vol. 32, 2019, pp. 10967--10978, arXiv:1901.09392.
+
+\bibitem{alvarez2018robustness}
+D. Alvarez-Melis and T. S. Jaakkola, ``On the robustness of interpretability methods,'' arXiv:1806.08049, 2018.
+
+\bibitem{guidotti2018survey}
+R. Guidotti, A. Monreale, S. Ruggieri, F. Turini, F. Giannotti, and D. Pedreschi, ``A survey of methods for explaining black box models,'' \emph{ACM Computing Surveys}, vol. 51, no. 5, Article 93, pp. 1--42, 2018, doi: 10.1145/3236009.
+
+\bibitem{kokhlikyan2020captum}
+N. Kokhlikyan \emph{et al.}, ``Captum: A unified and generic model interpretability library for PyTorch,'' arXiv:2009.07896, 2020.
+\end{thebibliography}
+
+\end{document}

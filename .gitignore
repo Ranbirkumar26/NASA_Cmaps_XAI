@@ -1,0 +1,58 @@
+.venv/
+.venv311/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.chart-data-*/
+.pptx_build/
+tmp/
+output/
+brag-output-*/
+
+# NASA data and generated artifacts
+data/raw/
+data/interim/
+data/processed/
+RUL_FD*.txt
+reports/figures/*
+reports/statistics/*
+reports/engine_profiles/*
+reports/logs/*
+results/configs/*
+results/statistics/*
+results/tables/*
+results/plots/*
+results/xai/*/models/
+results/xai/FD002/
+results/xai/FD003/
+results/xai/FD004/
+
+# Keep report/result directories visible
+!reports/figures/.gitkeep
+!reports/statistics/.gitkeep
+!reports/engine_profiles/.gitkeep
+!reports/logs/.gitkeep
+!results/configs/.gitkeep
+!results/statistics/.gitkeep
+!results/tables/.gitkeep
+!results/plots/.gitkeep
+
+# Local notebooks and OS files
+.ipynb_checkpoints/
+.DS_Store
+
+# LaTeX build byproducts
+paper/*.aux
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/missfont.log
+
+# Local-only build helpers and agent instructions
+AGENTS.md
+presentation/build_cmapss_deck.mjs
+paper/*.docx

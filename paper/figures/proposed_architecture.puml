@@ -1,0 +1,114 @@
+@startuml
+
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam ArrowColor #303030
+skinparam ArrowThickness 1.2
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam package {
+  BackgroundColor #F7F9FC
+  BorderColor #6B7280
+  FontColor #111827
+}
+skinparam component {
+  BackgroundColor #FFFFFF
+  BorderColor #374151
+  FontColor #111827
+}
+skinparam note {
+  BackgroundColor #FFF8DC
+  BorderColor #9CA3AF
+}
+
+package "Data Layer" {
+  [NASA C-MAPSS Raw Files\nFD001\nCMAPSSData.zip] as raw
+  [Parser\n26 NASA columns\nunit, cycle, settings, sensors] as parser
+  [Validation\nschema checks\nunit-cycle checks\nNaN and Inf checks\nwindow leakage checks] as validation
+}
+
+package "Preprocessing Layer" {
+  [RUL Builder\nmax cycle minus cycle\nRUL cap = 125] as rul
+  [Train-Only Normalization\nscaler fit on train split only\nnormalization.json\nscaler.pkl] as scaling
+  [Window Builder\n30-cycle windows\nwindows.npz\nwindow_metadata.parquet] as windows
+}
+
+package "Reproducibility Layer" {
+  [Processed Tables\ntrain.parquet\ntest.parquet\ntest_rul.parquet] as parquet
+  [Experiment Metadata\nmetadata.json\nfeature_registry.yaml\ndataset_hash.txt] as metadata
+}
+
+package "Model Layer" {
+  [Classical Models\nRidge\nRandom Forest\nHistGradientBoosting\nMLP] as classical
+  [Sequence Models\nLSTM\nGRU\nTransformer] as sequence
+  [Lowest-RMSE FD001 Model\nTransformer sequence regressor] as best_model
+}
+
+package "XAI Layer" {
+  [Global Attribution\nSHAP\nsensor occlusion] as global_xai
+  [Local Explanation\nLIME\nlocal examples] as local_xai
+  [Temporal Attribution\ntemporal occlusion\nIntegrated Gradients] as temporal_xai
+  [Counterfactuals\nDiCE\nhigher-RUL examples] as counterfactual_xai
+}
+
+package "Evaluation Layer" {
+  [Predictive Metrics\nRMSE\nMAE\nR2\nNASA score] as pred_metrics
+  [XAI Metrics\nfaithfulness\nstability\nconsistency\nrobustness\nsparsity\nlocalization] as xai_metrics
+  [Trust Checks\nruntime\nmemory\nsubgroup MAE\nuncertainty-error\nexplanation disagreement] as trust_metrics
+}
+
+package "Decision Support Layer" {
+  [Streamlit Dashboard\nengine explorer\nsensor explorer\nmodel benchmark\nXAI explanations] as dashboard
+  [Maintenance Advisor\nrisk level\npredicted RUL\ntop sensors\ninspection priority] as advisor
+  [Paper and Reports\nfigures\ntables\nfailure cases\nreview packet] as reports
+}
+
+raw --> parser
+parser --> validation
+validation --> rul
+rul --> scaling
+scaling --> windows
+windows --> parquet
+windows --> metadata
+
+parquet --> classical
+windows --> sequence
+classical --> best_model
+sequence --> best_model
+
+best_model --> global_xai
+best_model --> local_xai
+best_model --> temporal_xai
+best_model --> counterfactual_xai
+
+best_model --> pred_metrics
+global_xai --> xai_metrics
+local_xai --> xai_metrics
+temporal_xai --> xai_metrics
+counterfactual_xai --> trust_metrics
+pred_metrics --> trust_metrics
+xai_metrics --> trust_metrics
+
+pred_metrics --> dashboard
+xai_metrics --> dashboard
+trust_metrics --> dashboard
+dashboard --> advisor
+dashboard --> reports
+advisor --> reports
+
+note bottom of best_model
+FD001 current best:
+Lowest RMSE = 15.593
+Test MAE = 10.879
+end note
+
+note bottom of trust_metrics
+Outputs support final review:
+accuracy, explanation quality,
+runtime, uncertainty, subgroup behavior,
+and failure-case discussion.
+end note
+
+@enduml

@@ -1,0 +1,6 @@
+evaluation:
+  metrics:
+    - "rmse"
+    - "mae"
+    - "r2"
+    - "nasa_score"

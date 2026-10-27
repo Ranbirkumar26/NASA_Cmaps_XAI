@@ -1,0 +1,9 @@
+{
+  "adversarial_top_sensor_prediction_shift": 2.137277055310914,
+  "confidence_uncertainty_error_spearman": 0.1501339262858874,
+  "explanation_disagreement_one_minus_top5_jaccard": 0.46279761904761907,
+  "model_drift_wasserstein_mean": 0.20750464577054126,
+  "spurious_low_variance_attribution_share": 0.0,
+  "subgroup_fairness_mae_gap": 14.470916943404262,
+  "subgroup_fairness_max_group_mae": 18.605843383867985
+}

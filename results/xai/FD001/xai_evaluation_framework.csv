@@ -1,0 +1,11 @@
+dimension,question,project_impact
+Predictive performance,Is the AI accurate?,Best model transformer_sequence test RMSE 15.593.
+Interpretability,Can we understand why it predicted?,"Global sensor, local sensor, temporal, and counterfactual explanations generated."
+Faithfulness,Does explanation represent model behavior?,Deletion delta 12.430.
+Stability,Do similar inputs produce similar explanations?,Neighbor cosine 0.446.
+Robustness,Does explanation survive perturbations?,Noise cosine 0.995.
+Fairness,Are decisions consistent across groups?,RUL subgroup MAE gap 14.471.
+Confidence,Does reliability match confidence?,Uncertainty-error Spearman 0.150.
+Actionability,Can explanation suggest what to do?,24 maintenance-advisor rows generated.
+Human usefulness,Does explanation improve decisions?,Engineer can inspect top sensors and high-risk engines first.
+Domain impact,Does XAI produce practical benefit?,"Maintenance prioritization combines RUL, risk, attribution, and counterfactual evidence."

@@ -1,0 +1,3 @@
+training:
+  enabled: false
+  note: "Reserved for LSTM, GRU, and Transformer experiments."

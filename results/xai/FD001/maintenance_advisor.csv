@@ -1,0 +1,25 @@
+unit_id,end_cycle,actual_rul,predicted_rul,risk_level,top_sensors,maintenance_window,decision_support_value
+34,203,7.0,9.645614084399313,high,"sensor_8, sensor_13, sensor_11, sensor_12, sensor_15",next 15 to 20 cycles,prioritize sensor/component inspection using explanation evidence
+31,130,74.0,71.03794112603669,low,"sensor_8, sensor_12, sensor_7, sensor_21, sensor_13",routine monitoring,prioritize sensor/component inspection using explanation evidence
+20,137,63.0,79.83847322114656,low,"sensor_7, sensor_15, sensor_11, setting_2, sensor_8",routine monitoring,prioritize sensor/component inspection using explanation evidence
+82,120,51.0,88.38243009813027,low,"sensor_8, sensor_12, sensor_21, setting_2, sensor_7",routine monitoring,prioritize sensor/component inspection using explanation evidence
+94,33,125.0,100.75799350388411,low,"sensor_20, sensor_7, sensor_4, setting_1, sensor_13",routine monitoring,prioritize sensor/component inspection using explanation evidence
+94,89,99.0,102.62012353150021,low,"sensor_4, sensor_12, sensor_9, sensor_11, sensor_17",routine monitoring,prioritize sensor/component inspection using explanation evidence
+8,102,125.0,104.54012667767392,low,"sensor_14, sensor_21, sensor_15, sensor_8, sensor_3",routine monitoring,prioritize sensor/component inspection using explanation evidence
+32,110,83.0,110.73532138091514,low,"sensor_4, sensor_14, sensor_13, sensor_11, sensor_6",routine monitoring,prioritize sensor/component inspection using explanation evidence
+3,50,125.0,111.97241849587681,low,"sensor_14, sensor_20, sensor_9, sensor_4, sensor_2",routine monitoring,prioritize sensor/component inspection using explanation evidence
+75,53,125.0,113.85555678999572,low,"sensor_11, setting_2, sensor_4, sensor_14, sensor_20",routine monitoring,prioritize sensor/component inspection using explanation evidence
+100,95,123.0,114.67563627185291,low,"sensor_11, sensor_12, sensor_4, sensor_21, sensor_9",routine monitoring,prioritize sensor/component inspection using explanation evidence
+52,112,106.0,116.07256478557974,low,"sensor_7, sensor_11, sensor_13, sensor_3, sensor_6",routine monitoring,prioritize sensor/component inspection using explanation evidence
+64,51,125.0,116.92265927343988,low,"sensor_13, sensor_20, sensor_6, sensor_11, sensor_8",routine monitoring,prioritize sensor/component inspection using explanation evidence
+21,113,92.0,119.29896161996794,low,"sensor_6, sensor_11, sensor_3, sensor_13, sensor_20",routine monitoring,prioritize sensor/component inspection using explanation evidence
+34,67,125.0,119.7710490317304,low,"sensor_6, sensor_8, sensor_11, sensor_7, sensor_15",routine monitoring,prioritize sensor/component inspection using explanation evidence
+13,87,125.0,121.24439000233997,low,"sensor_11, sensor_6, sensor_3, sensor_17, sensor_13",routine monitoring,prioritize sensor/component inspection using explanation evidence
+84,118,112.0,121.5312431561315,low,"sensor_14, sensor_7, sensor_9, sensor_17, sensor_21",routine monitoring,prioritize sensor/component inspection using explanation evidence
+13,60,125.0,123.4913483592818,low,"sensor_6, sensor_4, sensor_17, sensor_20, sensor_11",routine monitoring,prioritize sensor/component inspection using explanation evidence
+76,97,118.0,123.85245583334154,low,"sensor_4, sensor_6, sensor_11, sensor_17, sensor_13",routine monitoring,prioritize sensor/component inspection using explanation evidence
+90,40,125.0,124.39008794260644,low,"sensor_11, sensor_14, sensor_4, sensor_3, sensor_2",routine monitoring,prioritize sensor/component inspection using explanation evidence
+23,114,125.0,125.08434656803729,low,"sensor_4, sensor_14, sensor_17, sensor_11, sensor_6",routine monitoring,prioritize sensor/component inspection using explanation evidence
+54,66,125.0,126.58883631227218,low,"sensor_6, sensor_20, sensor_11, sensor_4, sensor_7",routine monitoring,prioritize sensor/component inspection using explanation evidence
+23,33,125.0,128.1766530040868,low,"sensor_6, sensor_4, sensor_20, sensor_11, sensor_17",routine monitoring,prioritize sensor/component inspection using explanation evidence
+52,183,35.0,46.586513105208724,medium,"sensor_14, sensor_9, setting_2, sensor_8, sensor_3",next 30 to 50 cycles,prioritize sensor/component inspection using explanation evidence

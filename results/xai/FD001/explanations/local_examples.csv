@@ -1,0 +1,25 @@
+sample_index,unit_id,start_cycle,end_cycle,target_rul,prediction,top_sensors,top_time_index
+3281,34,174,203,7.0,9.645614084399313,"sensor_8, sensor_13, sensor_11, sensor_12, sensor_15",29
+5157,52,154,183,35.0,46.586513105208724,"sensor_14, sensor_9, setting_2, sensor_8, sensor_3",27
+8342,82,91,120,51.0,88.38242885496402,"sensor_8, sensor_12, sensor_21, setting_2, sensor_7",29
+1807,20,108,137,63.0,79.83847446431281,"sensor_7, sensor_15, sensor_11, setting_2, sensor_8",29
+2904,31,101,130,74.0,71.03793988287043,"sensor_8, sensor_12, sensor_7, sensor_21, sensor_13",4
+3051,32,81,110,83.0,110.73532386724764,"sensor_4, sensor_14, sensor_13, sensor_11, sensor_6",29
+1938,21,84,113,92.0,119.29896161996794,"sensor_6, sensor_11, sensor_3, sensor_13, sensor_20",29
+9589,94,60,89,99.0,102.62012477466646,"sensor_4, sensor_12, sensor_9, sensor_11, sensor_17",2
+5086,52,83,112,106.0,116.07256229924724,"sensor_7, sensor_11, sensor_13, sensor_3, sensor_6",29
+8517,84,89,118,112.0,121.53124066979899,"sensor_14, sensor_7, sensor_9, sensor_17, sensor_21",29
+7607,76,68,97,118.0,123.85245831967404,"sensor_4, sensor_6, sensor_11, sensor_17, sensor_13",29
+10092,100,66,95,123.0,114.67563627185291,"sensor_11, sensor_12, sensor_4, sensor_21, sensor_9",29
+7504,75,24,53,125.0,113.85555430366321,"sensor_11, setting_2, sensor_4, sensor_14, sensor_20",29
+9533,94,4,33,125.0,100.75799350388411,"sensor_20, sensor_7, sensor_4, setting_1, sensor_13",4
+42,3,21,50,125.0,111.97241849587681,"sensor_14, sensor_20, sensor_9, sensor_4, sensor_2",29
+544,8,73,102,125.0,104.54012916400643,"sensor_14, sensor_21, sensor_15, sensor_8, sensor_3",4
+8882,90,11,40,125.0,124.39008296994143,"sensor_11, sensor_14, sensor_4, sensor_3, sensor_2",29
+1987,23,4,33,125.0,128.1766480314218,"sensor_6, sensor_4, sensor_20, sensor_11, sensor_17",29
+3145,34,38,67,125.0,119.7710490317304,"sensor_6, sensor_8, sensor_11, sensor_7, sensor_15",29
+2068,23,85,114,125.0,125.08434656803729,"sensor_4, sensor_14, sensor_17, sensor_11, sensor_6",29
+1097,13,58,87,125.0,121.24439248867247,"sensor_11, sensor_6, sensor_3, sensor_17, sensor_13",29
+1070,13,31,60,125.0,123.49134338661679,"sensor_6, sensor_4, sensor_17, sensor_20, sensor_11",29
+5335,54,37,66,125.0,126.58883133960717,"sensor_6, sensor_20, sensor_11, sensor_4, sensor_7",29
+6523,64,22,51,125.0,116.92265678710737,"sensor_13, sensor_20, sensor_6, sensor_11, sensor_8",29

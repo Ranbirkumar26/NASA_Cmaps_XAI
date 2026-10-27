@@ -1,0 +1,25 @@
+sample_index,current_prediction,counterfactual_prediction,expected_rul_gain,nearest_train_unit,changed_sensors,interpretation
+3281,9.645614084399313,25.26367581384511,15.618061729445799,12,"sensor_7, sensor_15, sensor_11, sensor_20, sensor_17",nearest healthier historical window suggests sensor pattern to inspect
+5157,46.586513105208724,60.272580106808164,13.68606700159944,41,"sensor_14, sensor_9, sensor_3, setting_2, sensor_2",nearest healthier historical window suggests sensor pattern to inspect
+8342,88.38243009813027,117.2009296074234,28.818499509293133,36,"setting_2, setting_1, sensor_3, sensor_15, sensor_20",nearest healthier historical window suggests sensor pattern to inspect
+1807,79.83847322114656,99.23635925385952,19.39788603271296,92,"sensor_17, sensor_9, sensor_21, sensor_15, sensor_14",nearest healthier historical window suggests sensor pattern to inspect
+2904,71.03794112603669,108.06039309618336,37.022451970146676,4,"setting_2, sensor_3, sensor_17, sensor_15, sensor_9",nearest healthier historical window suggests sensor pattern to inspect
+3051,110.73532138091514,121.21205276177716,10.47673138086202,17,"sensor_9, sensor_14, sensor_3, sensor_21, sensor_11",nearest healthier historical window suggests sensor pattern to inspect
+1938,119.29896161996794,130.24225329543333,10.943291675465389,2,"sensor_20, sensor_15, sensor_7, sensor_6, sensor_12",nearest healthier historical window suggests sensor pattern to inspect
+9589,102.62012353150021,117.32959234190321,14.709468810402996,14,"sensor_7, sensor_17, sensor_13, sensor_4, sensor_21",nearest healthier historical window suggests sensor pattern to inspect
+5086,116.07256478557974,126.462853844233,10.390289058653252,59,"setting_1, sensor_6, setting_2, sensor_20, sensor_9",nearest healthier historical window suggests sensor pattern to inspect
+8517,121.5312431561315,129.3224892844446,7.791246128313105,56,"sensor_17, sensor_13, sensor_7, sensor_8, sensor_11",nearest healthier historical window suggests sensor pattern to inspect
+7607,123.85245583334154,130.24225329543333,6.389797462091792,2,"setting_2, sensor_17, sensor_12, sensor_9, sensor_15",nearest healthier historical window suggests sensor pattern to inspect
+10092,114.67563627185291,127.81071458596944,13.135078314116527,18,"setting_1, sensor_20, sensor_15, sensor_12, sensor_4",nearest healthier historical window suggests sensor pattern to inspect
+7504,113.85555678999572,125.06319782374794,11.207641033752225,69,"sensor_17, sensor_13, setting_2, sensor_3, sensor_21",nearest healthier historical window suggests sensor pattern to inspect
+9533,100.75799350388411,125.69711315927725,24.939119655393142,86,"sensor_12, sensor_13, sensor_21, setting_1, sensor_17",nearest healthier historical window suggests sensor pattern to inspect
+42,111.97241849587681,125.17187541755084,13.199456921674027,32,"sensor_21, setting_1, sensor_3, sensor_17, setting_2",nearest healthier historical window suggests sensor pattern to inspect
+544,104.54012667767392,125.76388113237226,21.223754454698337,71,"sensor_17, sensor_14, sensor_20, sensor_12, sensor_9",nearest healthier historical window suggests sensor pattern to inspect
+8882,124.39008794260644,130.7840699023045,6.393981959698067,71,"sensor_8, sensor_15, sensor_4, sensor_20, sensor_21",nearest healthier historical window suggests sensor pattern to inspect
+1987,128.1766530040868,128.97922124610977,0.8025682420229714,2,"sensor_13, sensor_3, sensor_7, sensor_4, sensor_14",nearest healthier historical window suggests sensor pattern to inspect
+3145,119.7710490317304,130.24225329543333,10.47120426370293,2,"sensor_6, sensor_14, sensor_9, setting_1, sensor_13",nearest healthier historical window suggests sensor pattern to inspect
+2068,125.08434656803729,129.02605380517798,3.9417072371406903,79,"sensor_21, sensor_13, sensor_12, sensor_6, sensor_3",nearest healthier historical window suggests sensor pattern to inspect
+1097,121.24439000233997,130.24225329543333,8.99786329309336,2,"sensor_6, setting_2, sensor_9, setting_1, sensor_14",nearest healthier historical window suggests sensor pattern to inspect
+1070,123.4913483592818,128.8666450829387,5.375296723656902,2,"sensor_9, sensor_14, sensor_11, sensor_6, setting_1",nearest healthier historical window suggests sensor pattern to inspect
+5335,126.58883631227218,130.24225329543333,3.6534169831611507,2,"sensor_6, sensor_12, sensor_3, sensor_11, sensor_15",nearest healthier historical window suggests sensor pattern to inspect
+6523,116.92265927343988,127.29707309904734,10.374413825607462,96,"setting_2, sensor_8, sensor_6, sensor_13, sensor_17",nearest healthier historical window suggests sensor pattern to inspect

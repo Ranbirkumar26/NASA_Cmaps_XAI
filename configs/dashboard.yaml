@@ -1,0 +1,3 @@
+dashboard:
+  default_subset: "FD001"
+  max_profile_units: 100

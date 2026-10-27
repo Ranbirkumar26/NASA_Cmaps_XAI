@@ -1,0 +1,25 @@
+sample_index,unit_id,start_cycle,end_cycle,target_rul,top_sensors,top_time_index
+3281,34,174,203,7.0,"sensor_8, sensor_13, sensor_11, sensor_15, sensor_4",29
+5157,52,154,183,35.0,"sensor_14, sensor_9, setting_2, sensor_12, sensor_15",29
+8342,82,91,120,51.0,"sensor_8, sensor_12, sensor_21, sensor_7, sensor_9",29
+1807,20,108,137,63.0,"sensor_7, sensor_11, sensor_17, sensor_15, sensor_13",29
+2904,31,101,130,74.0,"sensor_14, setting_2, sensor_8, sensor_12, sensor_13",4
+3051,32,81,110,83.0,"sensor_14, sensor_4, sensor_9, sensor_21, sensor_3",29
+1938,21,84,113,92.0,"sensor_13, sensor_11, sensor_21, sensor_4, sensor_7",29
+9589,94,60,89,99.0,"sensor_4, sensor_9, sensor_17, sensor_11, sensor_14",29
+5086,52,83,112,106.0,"sensor_13, sensor_21, sensor_15, sensor_4, sensor_20",29
+8517,84,89,118,112.0,"sensor_14, sensor_9, sensor_17, sensor_8, sensor_11",29
+7607,76,68,97,118.0,"sensor_4, sensor_11, sensor_17, setting_2, sensor_8",29
+10092,100,66,95,123.0,"sensor_12, sensor_11, sensor_4, sensor_9, sensor_13",29
+7504,75,24,53,125.0,"sensor_4, sensor_11, setting_2, sensor_14, sensor_15",29
+9533,94,4,33,125.0,"sensor_4, sensor_20, sensor_14, sensor_13, setting_1",4
+42,3,21,50,125.0,"sensor_14, sensor_20, sensor_9, sensor_4, setting_1",29
+544,8,73,102,125.0,"sensor_14, setting_1, sensor_15, sensor_8, sensor_9",29
+8882,90,11,40,125.0,"sensor_14, sensor_4, sensor_11, sensor_2, sensor_3",29
+1987,23,4,33,125.0,"sensor_4, sensor_14, sensor_21, sensor_17, sensor_15",29
+3145,34,38,67,125.0,"sensor_13, sensor_11, sensor_15, sensor_21, sensor_14",29
+2068,23,85,114,125.0,"sensor_4, sensor_14, sensor_9, sensor_17, sensor_13",29
+1097,13,58,87,125.0,"sensor_11, sensor_4, sensor_13, sensor_17, setting_2",29
+1070,13,31,60,125.0,"sensor_4, sensor_12, sensor_15, sensor_17, sensor_13",29
+5335,54,37,66,125.0,"sensor_4, sensor_11, sensor_21, sensor_15, sensor_20",29
+6523,64,22,51,125.0,"sensor_13, sensor_21, sensor_20, sensor_11, sensor_14",29

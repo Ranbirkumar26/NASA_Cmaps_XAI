@@ -1,0 +1,8 @@
+{
+  "consistency_occlusion_lime_spearman": 0.8310490275811104,
+  "faithfulness_deletion_delta": 12.429527698821687,
+  "localization_last20pct_share": 0.5079489403109249,
+  "robustness_noise_cosine": 0.9954538387041577,
+  "sparsity_top3_share": 0.44460969214517393,
+  "stability_neighbor_cosine": 0.445937446544334
+}
